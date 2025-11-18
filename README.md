@@ -3,7 +3,7 @@ Nand2Tetris | HACK chipset
 <br>
 <h2>Block diagram of computer</h2>
 <br>
-![overview](https://github.com/user-attachments/assets/e08a235a-c1d8-4b91-8253-7a01619ed919)
+(https://github.com/user-attachments/assets/e08a235a-c1d8-4b91-8253-7a01619ed919)
 <br>
 <br>
 <h2>Data path for CPU's execution unit</h2>
