@@ -1,0 +1,108 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/5/CPU.hdl
+/**
+ * The Hack Central Processing unit (CPU).
+ * Parses the binary code in the instruction input and executes it according to the
+ * Hack machine language specification. In the case of a C-instruction, computes the
+ * function specified by the instruction. If the instruction specifies to read a memory
+ * value, the inM input is expected to contain this value. If the instruction specifies
+ * to write a value to the memory, sets the outM output to this value, sets the addressM
+ * output to the target address, and asserts the writeM output (when writeM = 0, any
+ * value may appear in outM).
+ * If the reset input is 0, computes the address of the next instruction and sets the
+ * pc output to that value. If the reset input is 1, sets pc to 0.
+ * Note: The outM and writeM outputs are combinational: they are affected by the
+ * instruction's execution during the current cycle. The addressM and pc outputs are
+ * clocked: although they are affected by the instruction's execution, they commit to
+ * their new values only in the next cycle.
+ */
+CHIP CPU {
+
+    IN  inM[16],         // M value input  (M = contents of RAM[A])
+        instruction[16], // Instruction for execution
+        reset;           // Signals whether to re-start the current
+                         // program (reset==1) or continue executing
+                         // the current program (reset==0).
+
+    OUT outM[16],        // M value output
+        writeM,          // Write to M? 
+        addressM[15],    // Address in data memory (of M)
+        pc[15];          // address of next instruction
+
+    PARTS:
+	// Draft 1 : Alu output is directly fed to Alu input without a passing by register
+    
+    /*
+    Not(in= instruction[15], out= nA);
+    Mux16(a= instruction, b= AluOut, sel= nA, out= Mux1);
+    Register(in= Mux1, load= intoA, out= outA, out[0..14] = addressM);
+    Or(a= na, b= instruction[5], out= intoA);
+    And(a= instruction[15], b= instruction[12], out= AorM);
+    Mux16(a= AluOut, b= InM, sel= AorM, out= Mux2);
+    Register(in= AluOut, load= intoD, out= outD);
+    And(a= instruction[15], b= instruction[4], out= intoD);
+    ALU(x= outD, y= Mux2, zx= instruction[11], 
+                            nx= instruction[10],
+                            zy= instruction[9],
+                            ny= instruction[8], 
+                            f= instruction[7],
+                            no= instruction[6], 
+                            out = AluOut, 
+                            zr= zr, 
+                            ng= ng);
+    And(a= instruction[15], b= instruction[3], out= WriteM);
+    */
+
+
+    // Creating two load signal to determine A-instruction or C-instruction.
+    Not(in=instruction[15],out=ni);
+    // using the load signal of A-instruction, mux allows whter to input instruction or ALU output to A-regs
+	Mux16(a=Aluout,b=instruction,sel=ni,out=i);
+
+    // creat control load for A-regs
+	Or(a=ni,b=instruction[5],out=intoA);
+	// A-Regs
+    Register(in=i,load=intoA,out=A,out[0..14]=addressM);
+
+    // create control for Mux2 to decide to use "A" or "M = Ram[A]"
+	And(a=instruction[15],b=instruction[12],out=AorM);
+	Mux16(a=A,b=inM,sel=AorM,out=AM);
+	
+    // y = AM represents contents of A-regs or M-Rom data
+	ALU(x=D,y=AM,zx=instruction[11],nx=instruction[10],zy=instruction[9],ny=instruction[8],f=instruction[7],no=instruction[6],out=Aluout,out=outM,zr=zr,ng=ng);
+
+    // load for Dregs 
+	And(a=instruction[15],b=instruction[4],out=intoD);
+	DRegister(in=Aluout,load=intoD,out=D);
+
+	And(a=instruction[15],b=instruction[3],out=writeM);
+
+    //JUMPs:
+
+    // ng: result < 0 , zr: result = 0, pos: result = 0
+    // pos = !ng && !zr
+	Not(in=ng,out=pos);
+	Not(in=zr,out=nzr);
+    //Jump when result > 0 ; JGT && pos
+	And(a=instruction[15],b=instruction[0],out=jgt);
+	And(a=pos,b=nzr,out=pnz);
+	And(a=jgt,b=pnz,out=ld1);
+
+    // Jump result == 0, JEQ && zr
+	And(a=instruction[15],b=instruction[1],out=jeq);
+	And(a=jeq,b=zr,out=ld2);
+
+    // Jump result < 0, JLT && ng
+	And(a=instruction[15],b=instruction[2],out=jlt);
+	And(a=jlt,b=ng,out=ld3);
+
+    //Or3way
+	Or(a=ld1,b=ld2,out=ldt);
+	Or(a=ld3,b=ldt,out=ld);
+
+	PC(in=A,load=ld,inc=true,reset=reset,out[0..14]=pc);
+
+
+}
