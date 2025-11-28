@@ -66,7 +66,7 @@ A counter is designed to contain the address of the instruction that the compute
 ### Circuit: 
 <img width="800" height="610" alt="image" src="https://github.com/user-attachments/assets/95cb2a34-c0b9-40d7-8448-e176623fb41a" />
 <br>
->CPU execution unit, where it takes varous instructions and their sets and perform the execution. A-register and D-registers are also used in this segment to implement A-instructions and C-instructions.
+> CPU execution unit, where it takes varous instructions and their sets and perform the execution. A-register and D-registers are also used in this segment to implement A-instructions and C-instructions.
 <br>
 <img width="803" height="610" alt="image" src="https://github.com/user-attachments/assets/0780d49e-e759-4ce0-b84d-b5a108ad5f29" />
 
