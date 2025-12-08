@@ -70,12 +70,10 @@ A counter is designed to contain the address of the instruction that the compute
 <br>
 <img width="803" height="610" alt="image" src="https://github.com/user-attachments/assets/0780d49e-e759-4ce0-b84d-b5a108ad5f29" />
 
-
-
-
-
+<br> 
+<p>the code can be found out in CPU.hdl and ALU.hdl. To run the code visit: https://nand2tetris.github.io/web-ide/chip/#reject</p>
 
 
 
 ## Credits
-This project is based on the Nand2Tetris course by Noam Nisan and Shimon Schocken, who developed the Hack platform and provided the test infrastructure.
+This project is based on the Nand2Tetris course by Noam Nisan and Shimon Schocken. 
